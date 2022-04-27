@@ -1,0 +1,8 @@
+  
+- name: Instalando K3S work load
+  shell: |
+    multipass transfer ./scripts/k3s-install-agent.sh {{ vmname }}:/tmp
+    multipass exec {{ vmname }} -- bash -c "chmod +x /tmp/k3s-install-agent.sh"
+    multipass exec {{ vmname }} -- bash -c "sh /tmp/k3s-install-agent.sh"
+    multipass exec {{ vmname }} -- bash -c "rm -f /tmp/k3s-install-agent.sh"
+  delegate_to: localhost

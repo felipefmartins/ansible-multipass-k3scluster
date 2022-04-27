@@ -1,0 +1,34 @@
+- name: Criar VMs Multipass para K3S cluster
+  hosts: 127.0.0.1
+  connection: local
+
+  tasks:
+  - name: Lendo configurações dos nós K3S do arquivo.
+    include_vars:
+      file: ./config/k3s-nodes.yml
+      name: k3snodes
+
+  - name: Criando chaves ssh e cloud-init
+    include_tasks: ./tasks/create-keys-cloudinit.yml
+
+  - name: Criando VMs do cluster K3S
+    include_tasks: ./tasks/delete-create-vms.yml
+    vars:
+      vmname: "{{ item.key }}"
+      vmcreationparams: "{{ item.value }}"
+    loop: "{{ k3snodes | dict2items }}"
+
+  - name: Install K3S Control Plane
+    include_tasks: ./tasks/install-k3s-control-plane.yml
+    vars:
+      vmname: "{{ item.key }}"
+    loop: "{{ k3snodes | dict2items }}"  
+    when: "'-cp' in item.key"
+
+  - name: Install K3S Work Load
+    include_tasks: ./tasks/install-k3s-work-load.yml
+    vars:
+      vmname: "{{ item.key }}"
+    loop: "{{ k3snodes | dict2items }}"  
+    when: "'-wl' in item.key"
+    

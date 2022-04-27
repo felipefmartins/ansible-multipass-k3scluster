@@ -1,0 +1,20 @@
+- name: Iniciando log de criação da VM
+  debug:
+    msg: "Criando VM {{ vmname }} ..."
+
+- name: Excluíndo VM existente
+  shell: |
+    multipass info {{ vmname }} > /dev/null 2> /dev/null
+    if [ $? -eq 0 ]; then
+      multipass delete {{ vmname }}
+      multipass purge
+    fi
+  delegate_to: localhost
+
+- name: Criando Nova VM
+  shell: multipass launch --name {{ vmname }} --cloud-init ./config/cloud-init.yaml {{ vmcreationparams }}
+  delegate_to: localhost
+
+- name: Finalizado Log da criação da VM
+  debug:
+    msg: "VM {{ vmname }} criada com sucesso!!!" 

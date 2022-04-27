@@ -1,0 +1,4 @@
+k3s-cp: "--cpus 2 --mem 6G --disk 10G 20.04" 
+k3s-wl-01: "--cpus 6 --mem 10G --disk 80G 20.04" 
+k3s-wl-02: "--cpus 6 --mem 10G --disk 80G 20.04"
+k3s-wl-03: "--cpus 6 --mem 10G --disk 80G 20.04"

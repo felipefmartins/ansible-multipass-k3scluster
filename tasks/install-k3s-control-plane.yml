@@ -1,0 +1,13 @@
+- name: Instalando K3S control plane
+  shell: | 
+    rm -f ./scripts/k3s-install-agent.sh
+    rm -f ./config/k3s.yaml
+    multipass exec {{ vmname }}  -- bash -c "curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh - "
+    echo "#!/bin/bash" > ./scripts/k3s-install-agent.sh
+    multipass exec {{ vmname }}  sudo -- bash -c 'echo "K3S_TOKEN="`cat /var/lib/rancher/k3s/server/node-token`""' >> ./scripts/k3s-install-agent.sh
+    echo "K3S_URL="https://$(multipass info {{ vmname }} | grep IPv4 | awk '{print $2}'):6443"" >> ./scripts/k3s-install-agent.sh
+    echo 'curl -sfL https://get.k3s.io | K3S_URL=${K3S_URL} K3S_TOKEN=${K3S_TOKEN} sh -' >> ./scripts/k3s-install-agent.sh
+    multipass exec {{ vmname}} -- bash -c "cat /etc/rancher/k3s/k3s.yaml" > ./config/k3s.yaml
+    sed -i '' "s/127.0.0.1/$(multipass info {{ vmname }} | grep IPv4 | awk '{print $2}')/" ./config/k3s.yaml
+    export KUBECONFIG={{ playbook_dir }}/config/k3s.yaml
+  delegate_to: localhost
